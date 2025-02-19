@@ -1,0 +1,28 @@
+name: Build Pocketbase Image
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'pocketbase/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 'Navigate to Pocketbase directory'
+        run: cd pocketbase
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE_NAME=ghcr.io/${{ secrets.GHCR_USERNAME }}/dogspotter-pocketbase:latest
+          docker build -t $IMAGE_NAME .
+          docker push $IMAGE_NAME
